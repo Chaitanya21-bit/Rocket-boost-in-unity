@@ -14,14 +14,20 @@ public class Collision : MonoBehaviour
 
     AudioSource audioSource;
     bool isTransitioning = false;
+    bool collisionDisabled = false;
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
     }
+    void Update()
+    {
+        DebugKeys();
+    }
 
     void OnCollisionEnter(UnityEngine.Collision other)
     {
-        if (isTransitioning)
+        if (isTransitioning || collisionDisabled)
             return;
         switch (other.gameObject.tag)
         {
@@ -37,6 +43,18 @@ public class Collision : MonoBehaviour
                 break;
         }
     }
+
+    void DebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextLevel();
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            collisionDisabled = !collisionDisabled;
+        }
+    }
     void StartSuccessSequence()
     {
         isTransitioning = true;
@@ -50,12 +68,11 @@ public class Collision : MonoBehaviour
     void StartCrashSequence()
     {
         isTransitioning = true ;
-        audioSource.Stop();
+        audioSource.Stop(); 
         crashParticle.Play();
         audioSource.PlayOneShot(crash);
-        GetComponent<Movement>().enabled = false;   
-
-      Invoke("ReloadLevel", loadLevelDelay);
+        GetComponent<Movement>().enabled = false;  
+        Invoke("ReloadLevel", loadLevelDelay);
     }
 
     void LoadNextLevel()
